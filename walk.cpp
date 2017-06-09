@@ -103,6 +103,7 @@ enum State {
 	STATE_NONE,
 	STATE_STARTUP,
 	STATE_GAMEPLAY,
+	STATE_PAUSE,
 	STATE_GAMEOVER
 };
 
@@ -531,9 +532,11 @@ void checkKeys(XEvent *e)
 	}
 	if (shift) {}
 	switch (key) {
+	    	case XK_o:
+		    	gl.state = STATE_PAUSE;
+			break;
 	    	case XK_p:
 		    	gl.state = STATE_GAMEPLAY;
-			printf("switching to STATE_GAMEPLAY");
 			break;
 		case XK_s:
 			screenCapture();
@@ -745,7 +748,41 @@ void physics(void)
 
 void render(void)
 {
+	float h = 200.0;
+	float w = h * 0.5;
+	glPushMatrix();
+//	glColor3f(1.0, 1.0, 1.0);
+	glBindTexture(GL_TEXTURE_2D, gl.walkTexture);
+
 	Rect r;
+
+	if (gl.state == STATE_PAUSE) {
+		h = 100.0;
+		w = 200.0;
+	//	glPushMatrix();
+	//	glEnable(GL_BLEND);
+	//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		
+		glColor4f(1.0, 1.0, 0.0, 0.8);
+		glTranslated(gl.xres/2, gl.yres/2, 0);
+		glBegin(GL_QUADS);
+			glVertex2i(-w,  -h);
+			glVertex2i(-w,   h);
+			glVertex2i( w,    h);
+			glVertex2i( w,   -h);
+		glEnd();
+	//	glDisable(GL_BLEND);
+		glPopMatrix();
+		r.bot = gl.yres/2 + 80;
+		r.left = gl.xres/2;
+		r.center = 1;
+		ggprint8b(&r, 16, 0, "PAUSED");
+		r.center = 0;
+		r.left = gl.xres/2 - 100;
+		ggprint8b(&r, 16, 0, "P Play");
+		return;		
+	}
+
 	//Clear the screen
 	glClearColor(0.1, 0.1, 0.1, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -856,11 +893,7 @@ void render(void)
 	//glEnd();
 	//
 	//
-	float h = 200.0;
-	float w = h * 0.5;
-	glPushMatrix();
-	glColor3f(1.0, 1.0, 1.0);
-	glBindTexture(GL_TEXTURE_2D, gl.walkTexture);
+
 	//
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.0f);
@@ -948,6 +981,7 @@ void render(void)
 	r.center = 0;
 	ggprint8b(&r, 16, c, "W   Walk cycle");
 	ggprint8b(&r, 16, c, "E   Explosion");
+	ggprint8b(&r, 16, c, "O   Pause");
 	ggprint8b(&r, 16, c, "+   faster");
 	ggprint8b(&r, 16, c, "-   slower");
 	ggprint8b(&r, 16, c, "right arrow -> walk right");
@@ -990,6 +1024,7 @@ void render(void)
 
 
 	}
+
 
 //	printf("end of render function\n");
 
