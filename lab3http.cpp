@@ -32,7 +32,7 @@ void program_usage();
 
 extern char serverText[250];
 
-char oldMain()
+char* oldMain(char *arg1, char *arg2)
 {
   struct sockaddr_in *remote;
   int sock;
@@ -47,9 +47,9 @@ char oldMain()
    // program_usage();
    // exit(2);
   //}  
-  host = HOST;
+  host = arg1;
  // if(argc > 2){
-    page = PAGE;
+    page = arg2;
  // }else{
     //casted PAGE as a constant char
     page = const_cast<char*>(PAGE);
@@ -111,9 +111,7 @@ char oldMain()
     }
     if(htmlstart){
       fprintf(stdout, htmlcontent);
-      char* text = htmlcontent;
-      char returnText = *text;
-      return (returnText);
+      return htmlcontent;
     }
 
     memset(buf, 0, tmpres);
@@ -125,9 +123,8 @@ char oldMain()
   free(get);
   free(remote);
   free(ip);
-  //bypassed old C close function
-  //close(sock);
-  return 0;
+  close(sock);
+  return htmlcontent;
 }
 
 void program_usage()

@@ -55,7 +55,7 @@ void physics(void);
 void render(void);
 
 //external functions
-extern char* oldMain();
+extern char* oldMain(char*, char*);
 
 //-----------------------------------------------------------------------------
 //Setup timers
@@ -111,7 +111,7 @@ class Global {
 public:
 	unsigned char keys[65536];
 	State state;
-	char* serverText;
+	char serverText[250];
 	int done;
 	int xres, yres;
 	int movie, movieStep;
@@ -133,7 +133,8 @@ public:
 	}
 	Global() {
 		logOpen();
-		serverText = "temp";
+		char *serverTemp = oldMain((char*)"sleipnir.cs.csubak.edu", (char *)"~dalden/secret.txt");
+		strncpy(serverText, serverTemp, 250);
 		state = STATE_STARTUP;
 		camera[0] = camera[1] = 0.0;
 		
@@ -967,7 +968,7 @@ void render(void)
 		//char* text;
 		//if (gl.serverText == "temp")
 		  //char* text = oldMain();
-		//ggprint8b(&r, 16, 0, text);
+		ggprint8b(&r, 16, 0, gl.serverText);
 
 
 	}
