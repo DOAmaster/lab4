@@ -1,5 +1,5 @@
 //3350
-//Modified by Cody Graves
+//Modified by Derrick Alden
 //program: walk.cpp
 //author:  Gordon Griesel
 //date:    summer 2017
@@ -115,6 +115,7 @@ public:
 	Flt camera[2];
 	Vec ball_pos;
 	Vec ball_vel;
+	int dynamicValues[100];
 	~Global() {
 		logClose();
 	}
@@ -145,6 +146,9 @@ public:
 		exp44.frame=0;
 		exp44.image=NULL;
 		exp44.delay = 0.022;
+		for (int i=0; i<100; i++) {
+			dynamicValues[i] = -1;
+		}
 		for (int i=0; i<20; i++) {
 			box[i][0] = rnd() * xres;
 			box[i][1] = rnd() * (yres-220) + 220.0;
@@ -642,19 +646,46 @@ void physics(void)
 	gl.ball_pos[1] += gl.ball_vel[1];
 	gl.ball_vel[1] -= 1.0;
 	Flt dd = lev.ftsz[0];
+
 	int col = (int)(gl.camera[0] / dd) + (gl.ball_pos[0] / lev.tilesize[0]);
 	col = col % lev.ncols;
-	int hgt = 0.0;
+	int hgt = 0;
+
+	//checks if the global dynamic value is set for col
+	if (gl.dynamicValues[col] != -1) {	
+		//set the height
+		hgt = gl.dynamicValues[col];  
+	} else {
+	    for (int i=0; i<lev.nrows; i++) {
+		if (lev.arr[i][col] != ' ') {
+			hgt = i;
+			break;
+		}
+	    }
+	    printf("col saved: %i\n", col);
+	    gl.dynamicValues[col] = hgt;
+	    
+	}
+	Flt h = lev.tilesize[1]*(lev.nrows-hgt) + lev.tile_base;
+	if (gl.ball_pos[1] <= h) {
+		gl.ball_vel[1] = 0.0;
+		gl.ball_pos[1] = h;
+	}
+	//dynamic col saved
+	//gl.dynamicValues[0] = col;
+
+	/*
 	for (int i = 0; i < lev.nrows; i++)
 	{
-	    if (lev.arr[i][col] != ' '){
+	    if (lev.arr[i][gl.dynamicValues[0]] != ' '){
 	    
 		hgt = i;
 	    	break;
 	    }
 	}
+	*/
 	//height of ball is (nrows-1-i)*tile_height + starting point
-	Flt h = lev.tilesize[1] * (lev.nrows-hgt) + lev.tile_base;
+//	Flt h = lev.tilesize[1] * (lev.nrows-hgt) + lev.tile_base;
 	
 	if (gl.ball_pos[1] <= h)
 	{
