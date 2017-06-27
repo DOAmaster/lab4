@@ -30,6 +30,8 @@ void program_usage();
 #define PORT 80
 #define USERAGENT "HTMLGET 1.0"
 
+extern char serverText[250];
+
 char oldMain()
 {
   struct sockaddr_in *remote;
