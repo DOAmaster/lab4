@@ -54,6 +54,9 @@ void init();
 void physics(void);
 void render(void);
 
+//external functions
+extern char* oldMain();
+
 //-----------------------------------------------------------------------------
 //Setup timers
 class Timers {
@@ -96,10 +99,19 @@ public:
 	}
 };
 
+enum State {
+	STATE_NONE,
+	STATE_STARTUP,
+	STATE_GAMEPLAY,
+	STATE_GAMEOVER
+};
+
 
 class Global {
 public:
 	unsigned char keys[65536];
+	State state;
+	char* serverText;
 	int done;
 	int xres, yres;
 	int movie, movieStep;
@@ -121,6 +133,8 @@ public:
 	}
 	Global() {
 		logOpen();
+		serverText = "temp";
+		state = STATE_STARTUP;
 		camera[0] = camera[1] = 0.0;
 		
 		ball_pos[0] = 300;
@@ -215,6 +229,8 @@ int main(void)
 	initXWindows();
 	initOpengl();
 	init();
+
+
 	while (!gl.done) {
 		while (XPending(dpy)) {
 			XEvent e;
@@ -486,6 +502,9 @@ void screenCapture()
 
 void checkKeys(XEvent *e)
 {
+    if (e->type != KeyRelease || e->type !=KeyPress)
+	return;
+
 	//keyboard input?
 	static int shift=0;
 	int key = XLookupKeysym(&e->xkey, 0);
@@ -507,6 +526,9 @@ void checkKeys(XEvent *e)
 	}
 	if (shift) {}
 	switch (key) {
+	    	case XK_p:
+		    	gl.state = STATE_GAMEPLAY;
+			break;
 		case XK_s:
 			screenCapture();
 			break;
@@ -692,6 +714,10 @@ void physics(void)
 	    gl.ball_vel[1] = 0;
 		gl.ball_pos[1] = h;	
 	}
+
+
+
+
 }
 
 void render(void)
@@ -907,7 +933,49 @@ void render(void)
 	if (gl.movie) {
 		screenCapture();
 	}
+
+	//check for start up sate
+	if (gl.state == STATE_STARTUP) {
+		h = 100.0;
+		w = 200.0;
+		glPushMatrix();
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		
+		glColor4f(1.0, 1.0, 0.0, 0.8);
+		glTranslated(gl.xres/2, gl.yres/2, 0);
+		glBegin(GL_QUADS);
+			glVertex2i(-w,  -h);
+			glVertex2i(-w,   h);
+			glVertex2i( w,    h);
+			glVertex2i( w,   -h);
+		glEnd();
+		glDisable(GL_BLEND);
+		glPopMatrix();
+		r.bot = gl.yres/2 + 80;
+		r.left = gl.xres/2;
+		r.center = 1;
+		ggprint8b(&r, 16, 0, "STARTUP SCREEN");
+		r.center = 0;
+		r.left = gl.xres/2 - 100;
+		ggprint8b(&r, 16, 0, "W walk cycle");
+		ggprint8b(&r, 16, 0, "P Play");
+	
+		
+		ggprint8b(&r, 16, 0, "Message from server");
+	
+		//char* text;
+		//if (gl.serverText == "temp")
+		  //char* text = oldMain();
+		//ggprint8b(&r, 16, 0, text);
+
+
+	}
+
+		
+
 }
+
 
 
 
