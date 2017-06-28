@@ -111,6 +111,8 @@ class Global {
 public:
 	unsigned char keys[65536];
 	State state;
+	double timeSpand;
+	struct timespec time;
 	char serverText[250];
 	int done;
 	int xres, yres;
@@ -135,6 +137,7 @@ public:
 		logOpen();
 		char *serverTemp = oldMain((char*)"sleipnir.cs.csubak.edu", (char *)"~dalden/secret.txt");
 		strncpy(serverText, serverTemp, 250);
+		printf("server text saved in global var serverText\n");
 		state = STATE_STARTUP;
 		camera[0] = camera[1] = 0.0;
 		
@@ -503,13 +506,14 @@ void screenCapture()
 
 void checkKeys(XEvent *e)
 {
-    if (e->type != KeyRelease || e->type !=KeyPress)
-	return;
+ //   printf("check keys being called\n");
+   // if (e->type != KeyRelease || e->type !=KeyPress)
+//	return;
 
 	//keyboard input?
 	static int shift=0;
 	int key = XLookupKeysym(&e->xkey, 0);
-	gl.keys[key]=1;
+	//gl.keys[key]=1;
 	if (e->type == KeyRelease) {
 		gl.keys[key]=0;
 		if (key == XK_Shift_L || key == XK_Shift_R)
@@ -529,6 +533,7 @@ void checkKeys(XEvent *e)
 	switch (key) {
 	    	case XK_p:
 		    	gl.state = STATE_GAMEPLAY;
+			printf("switching to STATE_GAMEPLAY");
 			break;
 		case XK_s:
 			screenCapture();
@@ -685,6 +690,7 @@ void physics(void)
 			break;
 		}
 	    }
+	    printf("move ball in physics called\n");
 	    printf("col saved: %i\n", col);
 	    gl.dynamicValues[col] = hgt;
 	    
@@ -694,6 +700,7 @@ void physics(void)
 		gl.ball_vel[1] = 0.0;
 		gl.ball_pos[1] = h;
 	}
+//	printf("out of move ball\n");
 	//dynamic col saved
 	//gl.dynamicValues[0] = col;
 
@@ -715,6 +722,21 @@ void physics(void)
 	    gl.ball_vel[1] = 0;
 		gl.ball_pos[1] = h;	
 	}
+
+	//timer to update the global text from ~dalden/public_html/secret.txt
+	/*
+	timers.recordTime(&timers.timeCurrent);
+	gl.timeSpand = timers.timeDiff(&gl.time, &timers.timeCurrent);
+	if(gl.timeSpand > 2.0) {
+		char *temp = oldMain((char*)"sleipnir.cs.csubak.edu", (char *)"~dalden/secret.txt");
+		strncpy(gl.serverText, temp, 250);
+		timers.recordTime(&gl.time);
+
+
+	}
+	*/
+
+//	printf("end of physics function\n");
 
 
 
@@ -964,14 +986,12 @@ void render(void)
 	
 		
 		ggprint8b(&r, 16, 0, "Message from server");
-	
-		//char* text;
-		//if (gl.serverText == "temp")
-		  //char* text = oldMain();
 		ggprint8b(&r, 16, 0, gl.serverText);
 
 
 	}
+
+//	printf("end of render function\n");
 
 		
 
