@@ -690,7 +690,7 @@ void physics(void)
 			break;
 		}
 	    }
-	    printf("move ball in physics called\n");
+	    //printf("move ball in physics called\n");
 	    printf("col saved: %i\n", col);
 	    gl.dynamicValues[col] = hgt;
 	    
