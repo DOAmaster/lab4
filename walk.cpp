@@ -532,6 +532,12 @@ void checkKeys(XEvent *e)
 	}
 	if (shift) {}
 	switch (key) {
+		#ifdef UNIT_TEST
+	    	case XK_a:
+		        void unitTest_normalize();
+		    	unitTest_normalize();
+			break;
+		#endif
 	    	case XK_o:
 		    	gl.state = STATE_PAUSE;
 			break;
@@ -602,6 +608,25 @@ Flt VecNormalize(Vec vec)
 	vec[2] = zlen * tlen;
 	return(len);
 }
+
+#ifdef UNIT_TEST
+//tests the VecNormalize function, can use an array of values in a loop to test
+void unitTest_normalize()
+{
+    Vec vec = { 10.0, 10.0, 0.0 };
+    Flt ret = VecNormalize(vec);
+    Flt tolerance = 0.05;
+    ret = ret - 14.14;
+    ret = fabs(ret);
+    if (ret <= tolerance) {
+	printf("unit test passed. ret: %lf vec[0]: %lf \n", ret, vec[0]);
+    } else {
+	printf("unit test failed ret: %lf vec[0]: %lf \n", ret, vec[0]);
+    }
+
+
+}
+#endif
 
 void physics(void)
 {
