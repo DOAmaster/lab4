@@ -60,7 +60,7 @@ char* oldMain(char *arg1, char *arg2)
   remote = (struct sockaddr_in *)malloc(sizeof(struct sockaddr_in *));
   remote->sin_family = AF_INET;
   tmpres = inet_pton(AF_INET, ip, (void *)(&(remote->sin_addr.s_addr)));
-  if( tmpres < 0)  
+  if ( tmpres < 0)  
   {
     perror("Can't set remote->sin_addr.s_addr");
     exit(1);
@@ -71,7 +71,7 @@ char* oldMain(char *arg1, char *arg2)
   }
   remote->sin_port = htons(PORT);
 
-  if(connect(sock, (struct sockaddr *)remote, sizeof(struct sockaddr)) < 0){
+  if (connect(sock, (struct sockaddr *)remote, sizeof(struct sockaddr)) < 0) {
     perror("Could not connect");
     exit(1);
   }
@@ -81,10 +81,10 @@ char* oldMain(char *arg1, char *arg2)
   //Send the query to the server
   //changed int sent to unsigned sent
   unsigned sent = 0;
-  while(sent < strlen(get))
+  while (sent < strlen(get))
   {
     tmpres = send(sock, get+sent, strlen(get)-sent, 0);
-    if(tmpres == -1){
+    if (tmpres == -1) {
       perror("send command, Can't send query");
       exit(1);
     }
@@ -94,29 +94,29 @@ char* oldMain(char *arg1, char *arg2)
   memset(buf, 0, sizeof(buf));
   int htmlstart = 0;
   char * htmlcontent;
-  while((tmpres = recv(sock, buf, BUFSIZ, 0)) > 0){
-    if(htmlstart == 0)
+  while ((tmpres = recv(sock, buf, BUFSIZ, 0)) > 0) {
+    if (htmlstart == 0)
     {
       /* Under certain conditions this will not work.
       * If the \r\n\r\n part is splitted into two messages
       * it will fail to detect the beginning of HTML content
       */
       htmlcontent = strstr(buf, "\r\n\r\n");
-      if(htmlcontent != NULL){
+      if (htmlcontent != NULL){
         htmlstart = 1;
         htmlcontent += 4;
       }
     }else{
       htmlcontent = buf;
     }
-    if(htmlstart){
+    if (htmlstart) {
       fprintf(stdout, htmlcontent);
       return htmlcontent;
     }
 
     memset(buf, 0, tmpres);
   }
-  if(tmpres < 0)
+  if (tmpres < 0)
   {
     perror("Error receiving data");
   }
@@ -137,7 +137,7 @@ void program_usage()
 int create_tcp_socket()
 {
   int sock;
-  if((sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0){
+  if ((sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0){
     perror("Can't create TCP socket");
     exit(1);
   }
@@ -151,13 +151,13 @@ char *get_ip(char *host)
   int iplen = 15;
   char *ip = (char *)malloc(iplen+1);
   memset(ip, 0, iplen+1);
-  if((hent = gethostbyname(host)) == NULL)
+  if ((hent = gethostbyname(host)) == NULL)
   {
     herror("Can't get IP host by name");
     exit(1);
   }
   //added one more to the iplength in the function to contact sleipnir
-  if(inet_ntop(AF_INET, (void *)hent->h_addr_list[0], ip, iplen+1) == NULL)
+  if (inet_ntop(AF_INET, (void *)hent->h_addr_list[0], ip, iplen+1) == NULL)
   {
     perror("Can't resolve host with inet_ntop");
     exit(1);
@@ -171,7 +171,7 @@ char *build_get_query(char *host, char *page)
   char *getpage = page;
   //casted string to char*
   char *tpl = (char*)"GET /%s HTTP/1.0\r\nHost: %s\r\nUser-Agent: %s\r\n\r\n";
-  if(getpage[0] == '/'){
+  if (getpage[0] == '/') {
     getpage = getpage + 1;
     fprintf(stderr,"Removing leading \"/\", converting %s to %s\n", page, getpage);
   }
